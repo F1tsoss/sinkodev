@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>GrapesJS Editor</title>
+    <link href="https://unpkg.com/grapesjs/dist/css/grapes.min.css" rel="stylesheet"/>
+    <style>
+      html, body {
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+        font-family: Arial, sans-serif;
+      }
+      #gjs {
+        height: 100vh;
+        border: 1px solid #444;
+        box-sizing: border-box;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="gjs">
+      <h1>Start building your website here!</h1>
+    </div>
+
+    <script src="https://unpkg.com/grapesjs"></script>
+    <script>
+      const editor = grapesjs.init({
+        container: '#gjs',
+        height: '100vh',
+        fromElement: true,
+        storageManager: false,
+        blockManager: {
+          appendTo: '#gjs',
+          blocks: [
+            {
+              id: 'section',
+              label: 'Section',
+              content: `<section style="padding:20px; text-align:center;">
+                          <h2>Section Title</h2>
+                          <p>Write your content here.</p>
+                        </section>`,
+            },
+            {
+              id: 'text',
+              label: 'Text',
+              content: '<p>Insert your text here</p>',
+            },
+            {
+              id: 'image',
+              label: 'Image',
+              content: '<img src="https://via.placeholder.com/350x150" alt="Image"/>',
+            },
+            {
+              id: 'button',
+              label: 'Button',
+              content: '<button style="padding:10px 15px; background:#556ee6; color:#fff; border:none; border-radius:4px;">Click me</button>',
+            },
+          ],
+        },
+        panels: {
+          defaults: [
+            {
+              id: 'panel-top',
+              el: document.body,
+              buttons: [
+                {
+                  id: 'export',
+                  className: 'gjs-btn',
+                  label: 'Export',
+                  command: 'export-template',
+                  attributes: { title: 'Export HTML & CSS' },
+                },
+                {
+                  id: 'clear',
+                  className: 'gjs-btn',
+                  label: 'Clear',
+                  command: 'clear-canvas',
+                  attributes: { title: 'Clear Canvas' },
+                },
+              ],
+            },
+          ],
+        },
+      });
+
+      editor.Commands.add('export-template', {
+        run(editor) {
+          const html = editor.getHtml();
+          const css = editor.getCss();
+          const exportWindow = window.open('', '_blank');
+          exportWindow.document.write(`<html><head><style>${css}</style></head><body>${html}</body></html>`);
+          exportWindow.document.close();
+        }
+      });
+
+      editor.Commands.add('clear-canvas', {
+        run(editor) {
+          if (confirm('Clear the canvas? This action cannot be undone.')) {
+            editor.DomComponents.clear();
+            editor.CssComposer.clear();
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
