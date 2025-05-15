@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Minimal GrapesJS Website Builder</title>
+  <link href="https://unpkg.com/grapesjs/dist/css/grapes.min.css" rel="stylesheet"/>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+        Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+      background: #fefefe;
+      color: #333;
+      overflow: hidden;
+    }
+    #gjs {
+      height: 100vh;
+      border: none;
+    }
+    /* Minimal top panel styling */
+    .gjs-pn-panel {
+      background: #fff;
+      border-bottom: 1px solid #ddd;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      font-weight: 600;
+    }
+    .gjs-btn {
+      color: #333;
+      background: transparent;
+      border: none;
+      font-size: 14px;
+      padding: 8px 16px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      border-radius: 6px;
+    }
+    .gjs-btn:hover {
+      background: #e6e6e6;
+    }
+    /* Block manager sidebar */
+    .gjs-blocks-c {
+      background: #fff;
+      border-right: 1px solid #ddd;
+      padding: 10px 5px;
+    }
+    .gjs-block {
+      border-radius: 6px;
+      box-shadow: none;
+      border: 1px solid transparent;
+      transition: border-color 0.3s ease;
+      font-weight: 500;
+    }
+    .gjs-block:hover {
+      border-color: #aaa;
+      background: #f9f9f9;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="gjs"></div>
+
+  <script src="https://unpkg.com/grapesjs"></script>
+  <script>
+    const editor = grapesjs.init({
+      container: '#gjs',
+      height: '100vh',
+      fromElement: false,
+      storageManager: false,
+      layerManager: { appendTo: '.layers-container' },
+      blockManager: {
+        appendTo: '.gjs-blocks',
+        blocks: [
+          {
+            id: 'section',
+            label: '<b>Section</b>',
+            category: 'Basic',
+            content: `<section style="padding:60px 30px; text-align:center; background:#f5f5f7;">
+                        <h2 style="margin:0; font-weight: 600; font-size: 32px;">Section Title</h2>
+                        <p style="margin-top:10px; color:#666; font-size: 16px;">Write your content here.</p>
+                      </section>`
+          },
+          {
+            id: 'two-columns',
+            label: 'Two Columns',
+            category: 'Layout',
+            content: `<div style="display:flex; gap:20px; padding:20px;">
+                        <div style="flex:1; background:#fff; padding:20px; box-shadow:0 1px 3px rgba(0,0,0,0.1);">Column 1</div>
+                        <div style="flex:1; background:#fff; padding:20px; box-shadow:0 1px 3px rgba(0,0,0,0.1);">Column 2</div>
+                      </div>`
+          },
+          {
+            id: 'text',
+            label: 'Text',
+            category: 'Basic',
+            content: `<p style="font-size:16px; color:#333;">Insert your text here</p>`
+          },
+          {
+            id: 'image',
+            label: 'Image',
+            category: 'Basic',
+            content: `<img src="https://via.placeholder.com/600x300" style="width:100%; border-radius: 8px;" alt="Image"/>`
+          },
+          {
+            id: 'button',
+            label: 'Button',
+            category: 'Basic',
+            content: `<button style="padding:12px 28px; background:#0071e3; color:#fff; border:none; border-radius:8px; font-size: 16px; cursor:pointer; font-weight: 600;">Click Me</button>`
+          },
+          {
+            id: 'video',
+            label: 'Video',
+            category: 'Media',
+            content: `<video controls style="width:100%; border-radius: 8px;">
+                        <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm" type="video/webm" />
+                        Sorry, your browser doesn't support embedded videos.
+                      </video>`
+          },
+          {
+            id: 'quote',
+            label: 'Quote',
+            category: 'Basic',
+            content: `<blockquote style="font-style: italic; color:#555; border-left: 4px solid #ccc; padding-left: 12px;">
+                        "Design is not just what it looks like and feels like. Design is how it works." — Steve Jobs
+                      </blockquote>`
+          },
+          {
+            id: 'divider',
+            label: 'Divider',
+            category: 'Basic',
+            content: `<hr style="border:none; border-top:1px solid #eee; margin: 20px 0;" />`
+          }
+        ],
+      },
+      panels: {
+        defaults: [
+          {
+            id: 'panel-top',
+            el: document.body,
+            buttons: [
+              {
+                id: 'export',
+                className: 'gjs-btn',
+                label: 'Export',
+                command: 'export-template',
+                attributes: { title: 'Export HTML & CSS' },
+              },
+              {
+                id: 'clear',
+                className: 'gjs-btn',
+                label: 'Clear',
+                command: 'clear-canvas',
+                attributes: { title: 'Clear Canvas' },
+              },
+            ],
+          },
+        ],
+      },
+    });
+
+    editor.Commands.add('export-template', {
+      run(editor) {
+        const html = editor.getHtml();
+        const css = editor.getCss();
+        const exportWindow = window.open('', '_blank');
+        exportWindow.document.write(`
+          <html>
+            <head>
+              <style>${css}</style>
+              <meta charset="UTF-8" />
+              <meta name="viewport" content="width=device-width, initial-scale=1" />
+            </head>
+            <body>${html}</body>
+          </html>`);
+        exportWindow.document.close();
+      }
+    });
+
+    editor.Commands.add('clear-canvas', {
+      run(editor) {
+        if (confirm('Clear the canvas? This action cannot be undone.')) {
+          editor.DomComponents.clear();
+          editor.CssComposer.clear();
+        }
+      }
+    });
+  </script>
+</body>
+</html>
